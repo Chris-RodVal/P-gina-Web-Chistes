@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chistes Médicos (Sanos)</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121822; --accent:#4dd0e1; --text:#eaf2f7; --muted:#9fb3c8; --ok:#7bd389;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(1200px 600px at 20% -10%, #0f1622 0, #0b0f14 55%) no-repeat, var(--bg);
+      color:var(--text); display:flex; min-height:100svh; align-items:center; justify-content:center; padding:24px;
+    }
+    .app{
+      width:min(920px, 100%); background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.00));
+      border:1px solid rgba(255,255,255,0.08); border-radius:24px; padding:22px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.02);
+      backdrop-filter: blur(6px);
+    }
+    header{display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:16px}
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{
+      width:40px; height:40px; border-radius:12px; display:grid; place-items:center;
+      background: conic-gradient(from 210deg, #00e5ff, #a7ffeb, #00e5ff);
+      color:#001a1f; font-weight:900; box-shadow:0 6px 18px rgba(0,229,255,0.25);
+    }
+    h1{font-size:1.25rem; margin:0}
+    .sub{color:var(--muted); font-size:.9rem}
+    .controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    select, button, .chip{border-radius:10px; border:1px solid rgba(255,255,255,0.10); background:var(--panel); color:var(--text)}
+    select{padding:10px 12px}
+    .chip{padding:9px 12px; font-size:.9rem; display:flex; gap:8px; align-items:center}
+    .chip input{accent-color:var(--accent)}
+    .btn{
+      padding:12px 16px; font-weight:700; letter-spacing:.2px; cursor:pointer;
+      background:linear-gradient(180deg, var(--accent), #22b8cf); border:none; color:#001a1f;
+      box-shadow:0 10px 24px rgba(77,208,225,0.35);
+    }
+    .btn:active{transform:translateY(1px)}
+    .secondary{background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.18)}
+    .wrap{
+      background:rgba(8,12,18,0.65); border:1px solid rgba(255,255,255,0.06); border-radius:18px;
+      padding:18px; margin-top:10px;
+    }
+    blockquote{
+      margin:0; font-size:1.25rem; line-height:1.55; background:linear-gradient(180deg, rgba(77,208,225,0.06), transparent);
+      border-left:4px solid var(--accent); padding:16px 18px; border-radius:12px; position:relative;
+    }
+    blockquote::before{
+      content:"“"; position:absolute; left:10px; top:-8px; font-size:40px; color:rgba(255,255,255,0.15)
+    }
+    .meta{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:10px; color:var(--muted); font-size:.9rem}
+    .meta .ok{color:var(--ok)}
+    footer{margin-top:16px; display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .hint{color:var(--muted); font-size:.85rem}
+    @media (max-width:560px){
+      blockquote{font-size:1.1rem}
+      .controls{flex-direction:column; align-items:stretch}
+      .btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <main class="app" role="main" aria-labelledby="title">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">Rx</div>
+        <div>
+          <h1 id="title">Chistes Médicos (Sanos)</h1>
+          <div class="sub">Humor saludable para guardias largas 😄</div>
+        </div>
+      </div>
+      <div class="controls">
+        <label class="chip" title="Filtra por categoría">
+          <span>Filtro</span>
+          <select id="category">
+            <option value="todas">Todas las categorías</option>
+            <option value="medicina">Medicina (general)</option>
+            <option value="guardia">Guardia/Turno</option>
+            <option value="pediatria">Pediatría</option>
+            <option value="anatomia">Anatomía</option>
+            <option value="farmacologia">Farmacología</option>
+            <option value="quirurgico">Quirúrgico</option>
+            <option value="saludpublica">Salud pública</option>
+            <option value="geniales">Limpios (no médicos)</option>
+          </select>
+        </label>
+        <label class="chip" title="Prioriza chistes médicos">
+          <input type="checkbox" id="soloMed" checked />
+          <span>Priorizar médicos</span>
+        </label>
+        <button class="btn" id="newJoke">🎲 Nuevo chiste</button>
+        <button class="btn secondary" id="copyJoke" title="Copiar al portapapeles">📋 Copiar</button>
+      </div>
+    </header>
+
+    <section class="wrap" aria-live="polite" aria-atomic="true">
+      <blockquote id="jokeText">Pulsa “Nuevo chiste” para empezar. Prometemos humor con consentimiento informado.</blockquote>
+      <div class="meta">
+        <span id="catLabel">Categoría: —</span>
+        <span id="progress">0 / 0 vistos</span>
+      </div>
+    </section>
+
+    <footer>
+      <span class="hint">Sugerencia: usa el filtro para tematizar (p.ej., “Guardia”). No se repiten hasta agotar la lista.</span>
+    </footer>
+  </main>
+
+  <script>
+    // === Repertorio de chistes (60+) — sanos, principalmente médicos ===
+    const JOKES = [
+      {t:"—Doctor, me duele aquí, aquí y aquí. —Usted tiene el dedo fracturado.", c:"medicina"},
+      {t:"—Doctor, vengo a que me lea los labios. —Claro: ‘NO TENGO TURNOS’", c:"medicina"},
+      {t:"La evidencia dice que el café no cura la guardia… pero mejora la adherencia.", c:"medicina"},
+      {t:"Diagnóstico diferencial de la guardia: 1) Sueño. 2) Más sueño. 3) Sueño refractario.", c:"medicina"},
+      {t:"—¿Qué tiene el paciente? —Hipertensión. —¿Y el residente? —Hipertensión+resignación.", c:"medicina"},
+      {t:"Si el paciente dice “no me duele nada” y el residente dice “no me falta nada”, ambos mienten.", c:"medicina"},
+      {t:"La bata blanca es como la capa de invisibilidad pero para el descanso.", c:"medicina"},
+      {t:"La única cosa que sube en línea recta en el hospital: la cantidad de WhatsApps del grupo.", c:"medicina"},
+      {t:"—Doctor, ¿mi operación fue un éxito? —Sí… y aprendimos algo nuevo para la próxima.", c:"medicina"},
+      {t:"Protocolo universal: si el computador se cuelga, el paciente mejora por placebo tecnológico.", c:"medicina"},
+      {t:"Historia clínica resumida: Motivo de consulta: Google me dijo. Impresión diagnóstica: Dr. Googleitis.", c:"medicina"},
+      {t:"Interconsulta al servicio de Milagros: cuando todo salió bien a pesar de todo.", c:"medicina"},
+      {t:"En urgencias no existe el ‘minuto’: existe el ‘ya voy’ cuántico.", c:"medicina"},
+      {t:"—¿Cuánto demora el resultado? —Entre ‘sale altiro’ y ‘llegó el alta’", c:"medicina"},
+      {t:"La escala de dolor debería medir del 0 al ‘me atendieron por orden de llegada’", c:"medicina"},
+      {t:"Guardia tranquila: fenómeno meteorológico con probabilidad 0%.", c:"guardia"},
+      {t:"Pronóstico nocturno: 100% de consultas cuando destapas tu comida.", c:"guardia"},
+      {t:"Regla de guardia: si dices ‘hoy está piola’, invocas 7 ambulancias.", c:"guardia"},
+      {t:"El desfibrilador moral de la guardia: el primer sorbo de café a las 03:17.", c:"guardia"},
+      {t:"Turno de 12 horas: unidad básica de medida del desorden circadiano.", c:"guardia"},
+      {t:"El timbre de urgencias tiene inteligencia: suena cuando cierras los ojos.", c:"guardia"},
+      {t:"—Doctor, mi hijo no come verduras. —Diagnóstico: selectitis infantil aguda.", c:"pediatria"},
+      {t:"Pediatría en una frase: el paciente llora y el médico también (por dentro).", c:"pediatria"},
+      {t:"Dosis pediátrica universal: una pegatina por buen paciente.", c:"pediatria"},
+      {t:"—¿Cuál es el antídoto del berrinche? —Tiempo, paciencia y una marraqueta extra.", c:"pediatria"},
+      {t:"Si el juguete suena, el niño se calma; si el computador suena, el médico se altera.", c:"pediatria"},
+      {t:"Mi músculo favorito es el ‘delto-ando’, porque siempre ando.", c:"anatomia"},
+      {t:"El húmero es el único hueso con permiso para hacer chistes.", c:"anatomia"},
+      {t:"—¿Dónde está el amor? —En el corazón… y en el pericardio por si llueve.", c:"anatomia"},
+      {t:"La anatomía te enseña que el cuerpo es perfecto: excepto mi postura en la guardia.", c:"anatomia"},
+      {t:"—¿Cuál es el órgano más musical? —El tímpano; siempre está afinado.", c:"anatomia"},
+      {t:"Farmacología aplicada: café vía oral, dosis c/‘cuando pestañeo’", c:"farmacologia"},
+      {t:"Interacciones peligrosas: café + turno de noche = taquicardia con felicidad.", c:"farmacologia"},
+      {t:"Efecto adverso de estudiar farmacología: querer poner posología a la vida.", c:"farmacologia"},
+      {t:"—¿Tiene alergias? —Sí, a los ‘no hay stock’ de farmacia.", c:"farmacologia"},
+      {t:"El placebo más potente: ‘ya llegó el resultado’", c:"farmacologia"},
+      {t:"La regla del cirujano: mide dos veces, corta una, y café tres.", c:"quirurgico"},
+      {t:"—¿Instrumentista listo? —Más lista que el residente el lunes.", c:"quirurgico"},
+      {t:"Si dices ‘cirugía corta’, el bisturí se ríe.", c:"quirurgico"},
+      {t:"Cirugía mayor ambulatoria: mayor para el paciente, ambulatoria para el café.", c:"quirurgico"},
+      {t:"Checklist de quirófano: 1) Paciente 2) Equipo 3) Música motivacional", c:"quirurgico"},
+      {t:"La prevención no se aplaude porque no se ve; pero se nota cuando falta.", c:"saludpublica"},
+      {t:"Vacuna del buen humor: esquema completo con refuerzo cada lunes.", c:"saludpublica"},
+      {t:"Determinante social del ánimo del residente: fin de mes.", c:"saludpublica"},
+      {t:"Si la educación es salud, este chiste es prescripción cultural.", c:"saludpublica"},
+      {t:"—¿Qué es un brote? —Cuando todos cuentan el mismo chiste y se contagia la risa.", c:"saludpublica"},
+      {t:"El estetoscopio sirve para oír soplos y para fingir que ya vas.", c:"medicina"},
+      {t:"—Doctor, ¿qué es ‘ayuno’? —Explique con empatía al paciente… y al residente.", c:"medicina"},
+      {t:"Paciente: ‘no me duele nada’. Signos vitales: ‘plot twist’.", c:"medicina"},
+      {t:"Triaje emocional: verde si hay café, amarillo si se acabó, rojo si era descafeinado.", c:"guardia"},
+      {t:"—¿Cuál es su dolor? —El que empieza cuando suena el timbre. —Diagnóstico: refuerzo condicionado.", c:"medicina"},
+      {t:"Alta administrativa: la cirugía más compleja del hospital.", c:"medicina"},
+      {t:"Regla de oro: si todo está tranquilo, revisa la hora… es cambio de turno.", c:"guardia"},
+      {t:"Electrolitos del residente: Na (na’ que dormir), K (qué sueño).", c:"medicina"},
+      {t:"Unidad de tiempo hospitalaria: ‘un momentito’ = 7 a 21 min.", c:"medicina"},
+      {t:"El diagnóstico más rápido: ‘no imprime’.", c:"medicina"},
+      {t:"Signo de Murphy (versión guardia): si te sientas, suena la ambulancia.", c:"guardia"},
+      {t:"Anamnesis avanzada: ‘¿qué tomó?’ —‘Turno de noche’.", c:"medicina"},
+      {t:"—¿Cuál es el colmo de un jardinero? —Que siempre lo dejen plantado.", c:"geniales"},
+      {t:"—¿Y de un electricista? —Que no ‘resista’ sus chispazos de humor.", c:"geniales"},
+      {t:"—¿Por qué el libro fue al médico? —Porque tenía lombrices… de lectura.", c:"geniales"},
+      {t:"—¿Qué hace una abeja en el gimnasio? —Zum-ba.", c:"geniales"},
+      {t:"—¿Cuál es el animal más antiguo? —La cebra, porque está en blanco y negro.", c:"geniales"},
+      {t:"—¿Qué le dijo una impresora a otra? —‘¿Esa hoja es tuya o es impresión mía?’", c:"geniales"},
+      {t:"—Profesor, ¿me castiga por algo que no hice? —No. —¡Qué bien! Porque no hice la tarea.", c:"geniales"},
+      {t:"Mi meta fitness: que el ascensor me salude por mi nombre.", c:"geniales"},
+      {t:"Se me cayó el internet. Confirmo que la casa sigue en su lugar.", c:"geniales"},
+      {t:"El café me habló: ‘deja de culparme por todo’.", c:"geniales"}
+    ];
+
+    // ——— Lógica de filtrado y no-repetición ———
+    const categoryEl = document.getElementById('category');
+    const soloMedEl = document.getElementById('soloMed');
+    const jokeTextEl = document.getElementById('jokeText');
+    const catLabelEl = document.getElementById('catLabel');
+    const progressEl = document.getElementById('progress');
+    const newBtn = document.getElementById('newJoke');
+    const copyBtn = document.getElementById('copyJoke');
+
+    let pool = [];
+    let order = [];
+    let seenCount = 0;
+    let pointer = -1;
+
+    function fisherYates(arr){
+      for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildPool(){
+      const cat = categoryEl.value;
+      const prioritized = soloMedEl.checked;
+      let filtered = JOKES.filter(j => cat==='todas' ? true : j.c===cat);
+
+      if (cat==='todas' && prioritized){
+        const medical = JOKES.filter(j=>['medicina','guardia','pediatria','anatomia','farmacologia','quirurgico','saludpublica'].includes(j.c));
+        filtered = filtered.concat(medical); // aumenta prob. de médicos
+      }
+      pool = filtered;
+      order = fisherYates([...pool.keys()]);
+      pointer = -1;
+      seenCount = 0;
+      updateProgress();
+    }
+
+    function updateProgress(){
+      progressEl.textContent = `${seenCount} / ${pool.length} vistos`;
+    }
+
+    function prettyCat(c){
+      const map = {
+        medicina:"Medicina", guardia:"Guardia/Turno", pediatria:"Pediatría", anatomia:"Anatomía",
+        farmacologia:"Farmacología", quirurgico:"Quirúrgico", saludpublica:"Salud pública", geniales:"Limpios"
+      };
+      return map[c] || c;
+    }
+
+    function showNext(){
+      if (!pool.length){
+        jokeTextEl.textContent = "No hay chistes para esa combinación. Cambia el filtro.";
+        catLabelEl.textContent = "Categoría: —";
+        progressEl.textContent = "0 / 0 vistos";
+        return;
+      }
+      pointer++;
+      if (pointer >= order.length){
+        // Re-armar orden para otro ciclo
+        order = fisherYates([...pool.keys()]);
+        pointer = 0;
+        seenCount = 0;
+      }
+      const idx = order[pointer];
+      const joke = pool[idx];
+      jokeTextEl.textContent = joke.t;
+      catLabelEl.textContent = `Categoría: ${prettyCat(joke.c)}`;
+      // contar vistos únicos dentro del ciclo actual
+      if (pointer < pool.length) seenCount = Math.min(pointer+1, pool.length);
+      updateProgress();
+    }
+
+    categoryEl.addEventListener('change', ()=>{ buildPool(); });
+    soloMedEl.addEventListener('change', ()=>{ buildPool(); });
+    newBtn.addEventListener('click', showNext);
+    copyBtn.addEventListener('click', async ()=>{
+      const text = `${jokeTextEl.textContent} — (${catLabelEl.textContent})`;
+      try{
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = "✅ Copiado";
+        setTimeout(()=>copyBtn.textContent="📋 Copiar", 1200);
+      }catch(e){
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy'); ta.remove();
+        copyBtn.textContent = "✅ Copiado";
+        setTimeout(()=>copyBtn.textContent="📋 Copiar", 1200);
+      }
+    });
+
+    // Inicializa al cargar
+    document.addEventListener('DOMContentLoaded', buildPool);
+  </script>
+</body>
+</html>
